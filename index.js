@@ -1,13 +1,25 @@
-const express = require('express');
+import express from "express";
+import "dotenv/config";
+import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import { dbConnection } from "./config/config.js";
+import taskRoutes from "./routes/tasks.js";
+import swaggerDocument from "./docs/index.js";
+
 const app = express();
-const PORT = 8080;
-const { dbConnection } = require('./config/config');
-const routes = require('./routes');
+
+app.use(cors());
 app.use(express.json());
-
-app.use('/', routes);
-
 
 dbConnection();
 
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+app.use("/", taskRoutes);
+
+const PORT = process.env.PORT || 8080;
+
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
+    console.log(`📄 Documentación disponible en http://localhost:${PORT}/api-docs`);
+});
